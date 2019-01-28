@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use handlers\SwooleHandler;
 use Illuminate\Console\Command;
+use Illuminate\Container\Container;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 
@@ -63,15 +64,12 @@ class SwooleCommand extends Command
 
         $ws->set([
             'reactor_num' => 1, //线程数  cpu核数
-            'worker_num' => 4,    //worker进程数 全异步非阻塞服务器 worker_num配置为CPU核数的1-4倍即可。同步阻塞服务器，worker_num配置为100或者更高，具体要看每次请求处理的耗时和操作系统负载状况
             'backlog' => 128,   //列队长度
             'max_request' => 50,//表示worker进程在处理完n次请求后结束运行。manager会重新创建一个worker进程。此选项用来防止worker进程内存溢出。
-            'dispatch_mode' => 1,//进程数据包分配模式 1平均分配，2按FD取模固定分配，3抢占式分配，默认为取模(dispatch=2)
             'max_conn ' => 1000,//最大连接数
         ]);
 
-        $hander = app('handlers\SwooleHandler');
-//        $hander = new SwooleHandler();
+        $hander = app(SwooleHandler::class);
 
         $ws->on('open', [$hander,'onOpen']);
         //监听WebSocket消息事件

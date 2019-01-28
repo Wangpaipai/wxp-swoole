@@ -32,8 +32,12 @@ class SwooleHandler
 	 */
 	public function onMessage(\swoole_websocket_server $ws, $request)
 	{
-		echo "接收到消息 $request->data \n";
-		$ws->push($request->fd,'接收成功:' . $request->data);
+		if ($request->opcode == 0x08) {
+			echo "断开连接: Code {$request->code} Reason {$request->reason}\n";
+		} else {
+			echo "接收到消息: {$request->data}\n";
+			$ws->push($request->fd,'接收成功:' . $request->data);
+		}
 	}
 
 	/**
@@ -43,8 +47,8 @@ class SwooleHandler
 	 * @param $ws
 	 * @param $fd
 	 */
-	public function onClose($ws, $fd)
+	public function onClose(\swoole_websocket_server $ws, $fd)
 	{
-		echo "断开连接 $fd \n";
+		echo "断开连接  \n";
 	}
 }
