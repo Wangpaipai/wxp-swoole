@@ -58,11 +58,11 @@ class SwooleCommand extends Command
     {
         $this->ws = new \Swoole\WebSocket\Server('0.0.0.0', 5950);
 
-        $this->ws->on('open', function ($ws, $request) {
+        $this->ws->on('open', function (\swoole_websocket_server $ws, $request) {
             echo '连接成功';
         });
         //监听WebSocket消息事件
-        $this->ws->on('message', function ($ws, $request) {
+        $this->ws->on('message', function (\swoole_websocket_server $ws, $request) {
             echo '接收到消息：' . $request->data;
             $ws->push($ws->fd,'123');
         });
