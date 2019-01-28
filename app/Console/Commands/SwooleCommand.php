@@ -56,28 +56,34 @@ class SwooleCommand extends Command
      */
     private function start()
     {
-        $ws = new \Swoole\WebSocket\Server('0.0.0.0', 5950);
+        $this->ws = new \Swoole\WebSocket\Server('0.0.0.0', 5950);
 
-        $ws->on('open', function ($ws, $request) {
+        $this->ws->on('open', function ($ws, $request) {
+            echo '连接成功';
         });
         //监听WebSocket消息事件
-        $ws->on('message', function ($ws, $frame) {
+        $this->ws->on('message', function ($ws, $request) {
+            echo '接收到消息：' . $request->data;
+            $ws->push($ws->fd,'123');
         });
-        $ws->on('close', function ($ws, $fd) {
+        $this->ws->on('close', function ($ws, $fd) {
+            echo $fd . '已断开';
         });
-        $ws->start();
+        $this->ws->start();
     }
     /**
      * 停止websocket
      */
     private function stop()
     {
+        $this->ws->stop(-1,false);
     }
     /**
      * 重启
      */
     private function restart()
     {
+        $this->ws->reload(true);
     }
     /**
      * @param $ws
