@@ -70,8 +70,8 @@ class SwooleCommand extends Command
             'max_conn ' => 1000,//最大连接数
         ]);
 
-//        $hander = app('handlers\SwooleHandler');
-        $hander = new SwooleHandler();
+        $hander = app('handlers\SwooleHandler');
+//        $hander = new SwooleHandler();
 
         $ws->on('open', [$hander,'onOpen']);
         //监听WebSocket消息事件
