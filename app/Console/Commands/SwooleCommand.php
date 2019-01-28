@@ -56,7 +56,7 @@ class SwooleCommand extends Command
      */
     private function start()
     {
-        $ws = new Swoole\WebSocket\Server('0.0.0.0', 5950);
+        $ws = new swoole_webSocket_server('0.0.0.0', 5950);
 
         $ws->on('open', function ($ws, $request) {
         });
