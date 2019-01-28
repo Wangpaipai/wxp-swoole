@@ -6,7 +6,7 @@
  * Time: 16:52
  */
 
-namespace App\handlers;
+namespace handlers;
 
 
 class SwooleHandler
