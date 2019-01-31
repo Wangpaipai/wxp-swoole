@@ -9,6 +9,8 @@
 namespace handlers;
 
 
+use RedisCache\RedisServer;
+
 class SwooleHandler
 {
 	/**
@@ -38,6 +40,9 @@ class SwooleHandler
 				case 'msg':
 					$this->sendMsg($ws,$data,$request->fd);
 					break;
+				case 'setData':
+					$this->setData($ws,$data,$request->fd);
+					break;
 				case 'swoole_stop':
 					$ws->stop(-1);
 					echo '关闭成功' . "\n";
@@ -55,6 +60,30 @@ class SwooleHandler
 					break;
 			}
 		}
+	}
+
+	/**
+	 * 设置资料
+	 * Created by：Mp_Lxj
+	 * @date 2019/1/31 14:37
+	 * @param $ws
+	 * @param $data
+	 * @param $fd
+	 */
+	public function setData($ws,$data,$fd)
+	{
+		$Redis = new RedisServer();
+		$arr = [
+			'name' => $data['name'] ?? '',
+			'icon' => $data['icon'] ?? '',
+			'uid' => $data['uid'] ?? ''
+		];
+		$Redis->hSet('user_data',$fd,$arr);
+
+		$send = [
+			'type' => 'set_data_succ'
+		];
+		$ws->push($fd,json_encode($send));
 	}
 
 	/**
@@ -80,6 +109,8 @@ class SwooleHandler
 	 */
 	public function onClose(\swoole_websocket_server $ws, $fd)
 	{
+		$Redis = new RedisServer();
+		$Redis->hDel('user_data',$fd);
 		echo "$fd 断开连接  \n";
 	}
 }

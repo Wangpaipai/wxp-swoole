@@ -16,7 +16,7 @@ class RedisServer
 	 * + 取值时需转换值，getVal方法，判断是否是数组或对象，若是则反序列化
 	 * +----------------------------------------------------------------------------------
 	 */
-	private $prefix = 'php_cache_zhangdabo:';//redis前缀  谨慎修改，修改后之前缓存将全部无法使用
+	private $prefix = 'swoole_data:';//redis前缀  谨慎修改，修改后之前缓存将全部无法使用
 
 	/**
 	 * 构造函数，实例化时可传入自定义前缀
@@ -174,5 +174,61 @@ class RedisServer
 			$val = unserialize($value);
 		}
 		return $val;
+	}
+
+	/**
+	 * 哈希 set
+	 * Created by：Mp_Lxj
+	 * @date 2019/1/31 14:35
+	 * @param $key1
+	 * @param $key2
+	 * @param $val
+	 */
+	public function hSet($key1,$key2,$val)
+	{
+		$key = $this->setKey($key1);
+		$val = $this->setVal($val);
+		Redis::hset($key,$key2,$val);
+	}
+
+	/**
+	 * 获取hash表的值
+	 * Created by：Mp_Lxj
+	 * @date 2019/1/31 14:43
+	 * @param $key1
+	 * @param $key2
+	 * @return mixed
+	 */
+	public function hGet($key1,$key2)
+	{
+		$key = $this->setKey($key1);
+		$val = Redis::hget($key,$key2);
+		return $this->getVal($val);
+	}
+
+	/**
+	 * 返回哈希列表中所有的keys
+	 * Created by：Mp_Lxj
+	 * @date 2019/1/31 14:38
+	 * @param $key
+	 * @return mixed
+	 */
+	public function hKeys($key)
+	{
+		$key = $this->setKey($key);
+		return Redis::hkeys($key);
+	}
+
+	/**
+	 * 删除哈希列表的键
+	 * Created by：Mp_Lxj
+	 * @date 2019/1/31 14:40
+	 * @param $key1
+	 * @param $key2
+	 */
+	public function hDel($key1,$key2)
+	{
+		$key = $this->setKey($key1);
+		Redis::hdel($key, $key2) ;
 	}
 }
