@@ -32,12 +32,43 @@ class SwooleHandler
 	 */
 	public function onMessage(\swoole_websocket_server $ws, $request)
 	{
-		if ($request->opcode == 0x08) {
-			echo "断开连接: Code {$request->code} Reason {$request->reason}\n";
-		} else {
-			echo "接收到消息: {$request->data}\n";
-			$ws->push($request->fd,'接收成功:' . $request->data);
+		$data = json_decode($request->data,true);
+		if(is_array($data)){
+			switch($data['type']){
+				case 'msg':
+					$this->sendMsg($ws,$data,$request->fd);
+					break;
+				case 'swoole_stop':
+					$ws->stop(-1);
+					echo '关闭成功' . "\n";
+					break;
+				case 'swoole_restart':
+					$ws->reload(false);
+					echo '重启成功' . "\n";
+					break;
+				default:
+					$data = [
+						'type' => 'msg',
+						'msg' => '数据类型错误'
+					];
+					$ws->push($request->fd,json_encode($data));
+					break;
+			}
 		}
+	}
+
+	/**
+	 * 发送消息
+	 * Created by：Mp_Lxj
+	 * @date 2019/1/31 9:18
+	 * @param $ws
+	 * @param $data
+	 * @param $fd
+	 */
+	public function sendMsg($ws,$data,$fd)
+	{
+		echo '接收到消息:' .json_encode($data). "\n";
+		$ws->push($fd,'接收成功:' . $data['msg']);
 	}
 
 	/**
@@ -49,6 +80,6 @@ class SwooleHandler
 	 */
 	public function onClose(\swoole_websocket_server $ws, $fd)
 	{
-		echo "断开连接  \n";
+		echo "$fd 断开连接  \n";
 	}
 }

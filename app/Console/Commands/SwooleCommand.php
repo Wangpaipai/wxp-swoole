@@ -4,9 +4,6 @@ namespace App\Console\Commands;
 
 use handlers\SwooleHandler;
 use Illuminate\Console\Command;
-use Illuminate\Container\Container;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
 
 class SwooleCommand extends Command
 {
@@ -67,6 +64,8 @@ class SwooleCommand extends Command
             'backlog' => 128,   //列队长度
             'max_request' => 50,//表示worker进程在处理完n次请求后结束运行。manager会重新创建一个worker进程。此选项用来防止worker进程内存溢出。
             'max_conn ' => 1000,//最大连接数
+            'heartbeat_check_interval' => 5,//心跳检测间隔时间
+            'heartbeat_idle_time' => 10,//心跳检测等待时间  超过10秒格杀勿论
         ]);
 
         $hander = app(SwooleHandler::class);
@@ -82,39 +81,55 @@ class SwooleCommand extends Command
      */
     private function stop()
     {
-        $ws = Cache::get('ws');
-        $ws->stop(-1,false);
+        $cli = new \swoole_http_client('127.0.0.1', 5950);
+        $cli->set([
+            'websocket_mask' => true,
+            'ssl_host_name' => 'www.lxj520.xyz',
+        ]);
+        $cli->setHeaders([
+            'Host' =>  'www.lxj520.xyz',
+            'UserAgent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'
+        ]);
+
+        $cli->on('message', function ($cli, $frame) {
+            var_dump($frame);
+        });
+
+        $cli->upgrade('/', function ($cli) {
+            $data = [
+                'type' => 'swoole_stop'
+            ];
+            echo $cli->body;
+            $cli->push(json_encode($data));
+            $cli->close();
+        });
     }
     /**
      * 重启
      */
     private function restart()
     {
-        $ws = Cache::get('ws');
-        $ws->reload(true);
-    }
-    /**
-     * @param $ws
-     * @param $room_id
-     * @param string $user_id
-     * @param string $message
-     * @param string $type
-     * @return bool
-     */
-    private function sendAll($ws, $room_id, $user_id = null, $message = null, $type = 'message')
-    {
-//        $user = $this->user->find($user_id, ['id', 'name']);
-//        if (!$user) {
-//            return false;
-//        }
-//        $message = json_encode([
-//            'message' => is_string($message) ? nl2br($message) : $message,
-//            'type' => $type,
-//            'user' => $user
-//        ]);
-//        $members = Redis::zrange("room:{$room_id}" , 0 , -1);
-//        foreach ($members as $fd) {
-//            $ws->push($fd, $message);
-//        }
+        $cli = new \swoole_http_client('127.0.0.1', 5950);
+        $cli->set([
+            'websocket_mask' => true,
+            'ssl_host_name' => 'www.lxj520.xyz',
+        ]);
+        $cli->setHeaders([
+            'Host' =>  'www.lxj520.xyz',
+            'UserAgent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'
+        ]);
+
+        $cli->on('message', function ($cli, $frame) {
+            var_dump($frame);
+        });
+
+        $cli->upgrade('/', function ($cli) {
+            $data = [
+                'type' => 'swoole_restart'
+            ];
+            echo $cli->body;
+            $cli->push(json_encode($data));
+            $cli->close();
+        });
     }
 }
