@@ -220,6 +220,19 @@ class RedisServer
 	}
 
 	/**
+	 * 获取hash表所有的内容  key=>val
+	 * Created by：Mp_Lxj
+	 * @date 2019/1/31 16:26
+	 * @param $key
+	 * @return mixed
+	 */
+	public function hGetAll($key)
+	{
+		$key = $this->setKey($key);
+		return Redis::hgetall($key);
+	}
+
+	/**
 	 * 删除哈希列表的键
 	 * Created by：Mp_Lxj
 	 * @date 2019/1/31 14:40
@@ -230,5 +243,67 @@ class RedisServer
 	{
 		$key = $this->setKey($key1);
 		Redis::hdel($key, $key2) ;
+	}
+
+	/**
+	 * 写入链表----在链表前面写入
+	 * Created by：Mp_Lxj
+	 * @date 2019/1/31 14:55
+	 * @param $key
+	 * @param $value
+	 */
+	public function lPush($key,$value)
+	{
+		$key = $this->setKey($key);
+		$val = $this->setVal($value);
+		Redis::lpush($key,$val);
+	}
+
+	/**
+	 * 写入链表  在链表后面写入
+	 * Created by：Mp_Lxj
+	 * @date 2019/1/31 14:56
+	 * @param $key
+	 * @param $value
+	 */
+	public function rPush($key,$value)
+	{
+		$key = $this->setKey($key);
+		$val = $this->setVal($value);
+		Redis::rpush($key,$val);
+	}
+
+	/**
+	 * 获取链表的值
+	 * Created by：Mp_Lxj
+	 * @date 2019/1/31 15:02
+	 * @param $key
+	 * @param int $start
+	 * @param int $end
+	 * @return mixed
+	 */
+	public function lRange($key,$start = 0,$end = -1)
+	{
+		$key = $this->setKey($key);
+		$res = Redis::lrange($key,$start,$end);
+		foreach($res as &$value){
+			$value = $this->getVal($value);
+		}
+		return $res;
+	}
+
+	/**
+	 * 删除链表指定内容的值
+	 * Created by：Mp_Lxj
+	 * @date 2019/1/31 15:10
+	 * @param $key
+	 * @param $val
+	 * @param int $num
+	 */
+	public function lRem($key,$val,$num = 1)
+	{
+		$key = $this->setKey($key);
+		$val = $this->setVal($val);
+		Redis::lrem($key,$num,$val);
 	}
 }

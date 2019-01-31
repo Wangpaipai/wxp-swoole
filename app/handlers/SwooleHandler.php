@@ -22,6 +22,13 @@ class SwooleHandler
 	 */
 	public function onOpen(\swoole_websocket_server $ws, $request)
 	{
+		$Redis = new RedisServer();
+		$Redis->rPush('connect',$request->fd);
+		$arr = [
+			'type' => 'setFd',
+			'fd' => $request->fd
+		];
+		$ws->push($request->fd,json_encode($arr));
 		echo "$request->fd 连接成功\n";
 	}
 
@@ -43,6 +50,9 @@ class SwooleHandler
 				case 'setData':
 					$this->setData($ws,$data,$request->fd);
 					break;
+				case 'getUserAll':
+					$this->getUserAll($ws,$request->fd);
+					break;
 				case 'swoole_stop':
 					$ws->stop(-1);
 					echo '关闭成功' . "\n";
@@ -53,13 +63,36 @@ class SwooleHandler
 					break;
 				default:
 					$data = [
-						'type' => 'msg',
+						'type' => 'error',
 						'msg' => '数据类型错误'
 					];
 					$ws->push($request->fd,json_encode($data));
 					break;
 			}
 		}
+	}
+
+	/**
+	 * 获取当前在线的所有用户
+	 * Created by：Mp_Lxj
+	 * @date 2019/1/31 16:14
+	 * @param $ws
+	 * @param $fd
+	 */
+	public function getUserAll($ws,$fd)
+	{
+		$Redis = new RedisServer();
+		$fdAll = $Redis->hGetAll('user_data');
+		$data = [];
+		foreach($fdAll as $key=>$value){
+			$value['fd'] = $key;
+			$data[] = $value;
+		}
+		$arr = [
+			'type' => 'getUserAll',
+			'data' => $data
+		];
+		$ws->push($fd,json_encode($arr));
 	}
 
 	/**
@@ -80,10 +113,21 @@ class SwooleHandler
 		];
 		$Redis->hSet('user_data',$fd,$arr);
 
+		//回执发送成功
 		$send = [
 			'type' => 'set_data_succ'
 		];
 		$ws->push($fd,json_encode($send));
+
+		$fdAll = $Redis->hKeys('user_data');
+		$arr['fd'] = $fd;
+		$notice = [
+			'type' => 'addUser',
+			'data' => $arr
+		];
+		foreach($fdAll as $value){
+			$ws->push($value,json_encode($notice));
+		}
 	}
 
 	/**
@@ -96,8 +140,22 @@ class SwooleHandler
 	 */
 	public function sendMsg($ws,$data,$fd)
 	{
-		echo '接收到消息:' .json_encode($data). "\n";
-		$ws->push($fd,'接收成功:' . $data['msg']);
+		$Redis = new RedisServer();
+		$userData = $Redis->hGet('user_data',$fd);
+//		$fdAll = $Redis->hKeys('user_data');
+//		$connAll = $Redis->lRange('connect');
+
+		//群发信息
+		$arr = [
+			'type' => 'msg',
+			'fd' => $fd,
+			'data' => [
+				'user' => $userData,
+				'msg' => $data['msg'],
+				'time' => date('Y-m-d H:i:s')
+			]
+		];
+		$ws->push($data['toFd'],json_encode($arr));
 	}
 
 	/**
@@ -111,6 +169,18 @@ class SwooleHandler
 	{
 		$Redis = new RedisServer();
 		$Redis->hDel('user_data',$fd);
+		$Redis->lRem('connect',$fd);
+
+		//通知某某下线了
+		$connAll = $Redis->lRange('connect');
+		$arr = [
+			'type' => 'close_notice',
+			'fd' => $fd
+		];
+
+		foreach($connAll as $value){
+			$ws->push($value,json_encode($arr));
+		}
 		echo "$fd 断开连接  \n";
 	}
 }
