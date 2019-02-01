@@ -29,7 +29,6 @@ class SwooleHandler
 			'fd' => $request->fd
 		];
 		$ws->push($request->fd,json_encode($arr));
-		echo "$request->fd 连接成功\n";
 	}
 
 	/**
@@ -55,11 +54,9 @@ class SwooleHandler
 					break;
 				case 'swoole_stop':
 					$ws->stop(-1);
-					echo '关闭成功' . "\n";
 					break;
 				case 'swoole_restart':
 					$ws->reload(false);
-					echo '重启成功' . "\n";
 					break;
 				default:
 					$data = [
@@ -181,6 +178,5 @@ class SwooleHandler
 		foreach($connAll as $value){
 			$ws->push($value,json_encode($arr));
 		}
-		echo "$fd 断开连接  \n";
 	}
 }
