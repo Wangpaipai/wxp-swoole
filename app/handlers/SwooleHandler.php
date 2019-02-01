@@ -152,7 +152,7 @@ class SwooleHandler
 			'data' => [
 				'user' => $userData,
 				'msg' => $data['msg'],
-				'time' => date('Y-m-d H:i:s')
+				'time' => date('Y/m/d H:i')
 			]
 		];
 		$ws->push($data['toFd'],json_encode($arr));

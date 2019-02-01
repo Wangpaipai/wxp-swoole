@@ -229,7 +229,11 @@ class RedisServer
 	public function hGetAll($key)
 	{
 		$key = $this->setKey($key);
-		return Redis::hgetall($key);
+		$res = Redis::hgetall($key);
+		foreach($res as &$v){
+			$v = $this->getVal($v);
+		}
+		return $res;
 	}
 
 	/**

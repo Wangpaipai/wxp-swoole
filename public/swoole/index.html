@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>客服对话</title>
+
+<link rel="stylesheet" href="imgs/font-icon/iconfont.css">
+<link rel="stylesheet" href="css/demo.css">
+
+</head>
+<body>
+
+<div class="header myName">
+	<input id="name" type="text">
+	<button id="setData">设置昵称</button>
+</div>
+
+<div class="header">
+	<div class="icon-box">
+		<i class="iconfont icon">&#xe637;</i>
+	</div>
+</div>
+<div class="chatbar">
+	<div class="chatbar-box">
+		<div class="chatbar-contacts">
+			<div class="contacts-search-box">
+				<i class="iconfont">&#xe651;</i>
+				<input type="text" class="search-text" placeholder="请输入要搜索的联系人">
+			</div>
+			<ul class="chatbar-contacts-uls">
+				<!-- <li>
+					<i class="iconfont">&#xe752;</i>
+					<p>黄小小</p>
+				</li> -->
+			</ul>
+		</div>
+		<div class="chatbar-messages">
+			<div class="messages-title">
+				<i class="iconfont">&#xe752;</i>
+				<h4></h4>
+				<i class="iconfont return-icon">&#xe61a;</i>
+			</div>
+			<div class="messages-text" id="messages-text">
+			</div>
+			<div class="messages-box">
+				<input class="message-btn" type="hidden" value="" id="fd">
+				<textarea class="messages-content" name="" id="" cols="30" rows="10"></textarea>
+				<input class="message-btn" type="button" value="发送" id="message-btn">
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/demo.js"></script>
+
+</body>
+</html>
+

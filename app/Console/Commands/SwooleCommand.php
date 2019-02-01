@@ -65,7 +65,7 @@ class SwooleCommand extends Command
             'max_request' => 50,//表示worker进程在处理完n次请求后结束运行。manager会重新创建一个worker进程。此选项用来防止worker进程内存溢出。
             'max_conn ' => 1000,//最大连接数
             'heartbeat_check_interval' => 5,//心跳检测间隔时间
-            'heartbeat_idle_time' => 10000,//心跳检测等待时间  超过10秒格杀勿论
+            'heartbeat_idle_time' => 1800,//允许连接最大空闲时间  超过该值 格杀勿论
         ]);
 
         $hander = app(SwooleHandler::class);
