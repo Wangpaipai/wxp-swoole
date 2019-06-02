@@ -31,8 +31,7 @@ class SwooleHandler
 		$Redis->rPush('connect',$request->fd);
 		$arr = [
 			'type' => 'setFd',
-			'fd' => $request->fd,
-            'aa' => 'aa'
+			'fd' => $request->fd
 		];
 		$ws->push($request->fd,json_encode($arr));
 	}
