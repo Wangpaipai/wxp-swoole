@@ -45,7 +45,6 @@ class SwooleHandler
 	 */
 	public function onMessage(\swoole_websocket_server $ws, $request)
 	{
-	    echo $request->fd;
 		$data = json_decode($request->data,true);
 		if(is_array($data)){
 			switch($data['type']){
