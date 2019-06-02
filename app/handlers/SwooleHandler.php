@@ -13,6 +13,11 @@ use RedisCache\RedisServer;
 
 class SwooleHandler
 {
+    public function onStart()
+    {
+        swoole_set_process_name("swoole_service");
+    }
+
 	/**
 	 * 监听连接事件
 	 * Created by：Mp_Lxj

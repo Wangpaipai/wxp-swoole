@@ -70,6 +70,7 @@ class SwooleCommand extends Command
 
         $hander = app(SwooleHandler::class);
 
+        $ws->on('start', [$hander,'onStart']);
         $ws->on('open', [$hander,'onOpen']);
         //监听WebSocket消息事件
         $ws->on('message', [$hander,'onMessage']);
