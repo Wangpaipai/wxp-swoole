@@ -27,7 +27,6 @@ class SwooleHandler
 	 */
 	public function onOpen(\swoole_websocket_server $ws, $request)
 	{
-	    echo '213';
 		$Redis = new RedisServer();
 		$Redis->rPush('connect',$request->fd);
 		$arr = [
